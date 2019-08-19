@@ -1,0 +1,28 @@
+<section name="layout">
+  <param type="int" name="screen_width">1440</param>
+  <param type="int" name="screen_height">960</param>
+  <param type="bool" name="full_screen">false</param>
+  <param type="string" name="screen_color">#F0F0F0</param>
+
+  <param type="int" name="amplitude_chart_position_x">100</param>
+  <param type="int" name="amplitude_chart_position_y">700</param>
+  <param type="float" name="pixel_scale">3.0</param>
+</section>
+
+<section name="input">
+  <param type="string" name="bear_0_up">w</param>
+  <param type="string" name="bear_0_down">s</param>
+  <param type="string" name="bear_1_up">up</param>
+  <param type="string" name="bear_1_down">down</param>
+  <param type="string" name="reset">space</param>
+</section>
+
+<section name="algorithm">
+  <param type="float" name="threshold">0.05</param>
+</section>
+
+<section name="sound">
+  <param type="float" name="sound_volume">1.0</param>
+</section>
+
+
