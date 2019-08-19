@@ -39,10 +39,14 @@ class ChoppingBoard {
   vector<float> amplitudes;
 
   float threshold;
+  int width_of_silence;
+  int backtrack_to_silence;
 
   float time_since_music_start;
 
   float start_position;
+
+  float marker_speed;
 
   int screen_width;
   int screen_height;

@@ -18,7 +18,9 @@
 </section>
 
 <section name="algorithm">
-  <param type="float" name="threshold">0.05</param>
+  <param type="float" name="threshold">0.01</param>
+  <param type="int" name="width_of_silence">5</param>
+  <param type="int" name="backtrack_to_silence">3</param>
 </section>
 
 <section name="sound">

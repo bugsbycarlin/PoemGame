@@ -73,15 +73,33 @@ void ChoppingBoard::initialize() {
   chart_position_y = hot_config.getInt("layout", "amplitude_chart_position_y");
   pixel_scale = hot_config.getFloat("layout", "pixel_scale");
   threshold = hot_config.getFloat("algorithm", "threshold");
+  width_of_silence = hot_config.getInt("algorithm", "width_of_silence");
+  backtrack_to_silence = hot_config.getInt("algorithm", "backtrack_to_silence");
 
-  string last = "under";
+  marker_speed = 0.01;
+
+  // string last = "under";
+  // for (int i = 0; i < amplitudes.size(); i++) {
+  //   string current = "under";
+  //   if (amplitudes[i] > threshold) current = "over";
+  //   if (current == "over" && last == "under") {
+  //     locations.push_back(i);
+  //   }
+  //   last = current;
+  // }
+
+  int unders = 0;
   for (int i = 0; i < amplitudes.size(); i++) {
-    string current = "under";
-    if (amplitudes[i] > threshold) current = "over";
-    if (current == "over" && last == "under") {
+    if (amplitudes[i] < threshold) unders += 1;
+
+    if (amplitudes[i] >= threshold && unders > width_of_silence) {
       locations.push_back(i);
+      unders = 0;
     }
-    last = current;
+  }
+
+  for (int l = 0; l < locations.size(); l++) {
+    locations[l] -= backtrack_to_silence;
   }
 
   word_box = new Textbox(
@@ -160,12 +178,17 @@ void ChoppingBoard::logic() {
       }
     }
 
+    marker_speed *= 0.9;
+    if (marker_speed < 0.01) marker_speed = 0.01;
+
     if (input.keyDown("left")) {
-      start_position -= 0.01;
+      start_position -= marker_speed;
+      marker_speed += 0.01;
     }
 
     if (input.keyDown("right")) {
-      start_position += 0.01;
+      start_position += marker_speed;
+      marker_speed += 0.01;
     }
 
     if (input.keyDown("d")) {
@@ -176,6 +199,23 @@ void ChoppingBoard::logic() {
         }
       }
       locations = new_locations;
+
+      if (selected_item > 0) {
+        selected_item--;
+      }
+      start_position = locations[selected_item] / 100.0;
+    }
+
+    if (input.keyDown("a")) {
+      vector<string> new_words = {};
+      for (int w = 0; w < words.size(); w++) {
+        if (w != selected_item + 1) {
+          new_words.push_back(words[w]);
+        } else {
+          new_words[w-1] = new_words[w-1] + " " + words[w];
+        }
+      }
+      words = new_words;
     }
 
     if (input.keyDown("s")) {
@@ -183,7 +223,11 @@ void ChoppingBoard::logic() {
       output_file.open(music + ".split");
 
       for (int l = 0; l < locations.size(); l++) {
-        string output = to_string(locations[l]) + "\n";
+        string output = to_string(locations[l]);
+        if (l < words.size()) {
+          output += "; " + words[l];
+        }
+        output += "\n";
         output_file << output.c_str();
       }
 
@@ -194,6 +238,16 @@ void ChoppingBoard::logic() {
     if (input.keyDown("m")) {
       locations.push_back(start_position * 100);
       sort(locations.begin(), locations.end());
+      int closest = 4000;
+      int choice = -1;
+      for (int l = 0; l < locations.size(); l++) {
+        if (abs(start_position * 100 - locations[l]) < closest) {
+          closest = abs(start_position * 100 - locations[l]);
+          choice = l;
+        }
+      }
+      selected_item = choice;
+      start_position = locations[selected_item] / 100.0;
     }
   }
 
